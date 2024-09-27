@@ -4,6 +4,7 @@ import buz.api.event.Event;
 import buz.api.event.EventListener;
 import buz.impl.util.ForkableIterator;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.NoSuchElementException;
@@ -12,9 +13,12 @@ import java.util.NoSuchElementException;
 public class RegisteredListener<E extends Event<?>> implements Comparable<RegisteredListener<E>>, Iterable<EventListener<E>> {
     private static final EventListener<?> NO_OP_LISTENER = (p, e) -> {
     };
-    public final EventListener<E> listener;
-    public final int priority;
-    public final int typeDepth;
+    @Getter
+    private final EventListener<E> listener;
+    @Getter
+    private final int priority;
+    @Getter
+    private final int typeDepth;
     //public RegisteredListener<E> fixedEnd;
 
     public RegisteredListener<E> next;
@@ -27,7 +31,6 @@ public class RegisteredListener<E extends Event<?>> implements Comparable<Regist
     public RegisteredListener(int typeDepth, int priority) {
         this((EventListener<E>) NO_OP_LISTENER, priority, typeDepth); // like the top type.
     }
-
     public void insertSorted(RegisteredListener<E> listener) {
         if (listener.priority > priority) {
             RegisteredListener<E> tail = this;

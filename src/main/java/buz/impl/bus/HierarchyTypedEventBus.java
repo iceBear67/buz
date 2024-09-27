@@ -1,5 +1,6 @@
 package buz.impl.bus;
 
+import buz.api.EventPipeline;
 import buz.api.event.EventExceptionHandler;
 import buz.api.event.EventListener;
 import buz.api.ScheduleType;
@@ -41,9 +42,11 @@ public class HierarchyTypedEventBus<E extends Event<?>> implements EventBus<E> {
         var sc = typeOfEvent.getSuperclass();
         if (Event.class.isAssignableFrom(sc)) {
             var parent = getListenerByType((Class<E>) sc);
-            var intermediate = new RegisteredListener<>(depth, Integer.MAX_VALUE);
+            var intermediate = new RegisteredListener<>((pipeline, event) -> {
+                postEventAtNode((RegisteredListener<Event<?>>) parent, event, false, null);
+            }, depth, Integer.MAX_VALUE);
             headForType.insertSorted((RegisteredListener<E>) intermediate);
-            intermediate.next = (RegisteredListener<Event<?>>) parent; // a trick.
+            //intermediate.next = (RegisteredListener<Event<?>>) parent; // a trick.
         }
         typedListeners.put(typeOfEvent, headForType);
         return headForType;
