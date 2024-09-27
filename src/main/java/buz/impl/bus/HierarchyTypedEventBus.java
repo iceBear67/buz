@@ -34,19 +34,18 @@ public class HierarchyTypedEventBus<E extends Event<?>> implements EventBus<E> {
 
     @SuppressWarnings("unchecked")
     protected <E extends Event<?>> RegisteredListener<E> getListenerByType(Class<E> typeOfEvent) {
-        if (typedListeners.containsKey(typeOfEvent)) {
-            return (RegisteredListener<E>) typedListeners.get(typeOfEvent);
+        var listener = typedListeners.get(typeOfEvent);
+        if (listener != null) {
+            return (RegisteredListener<E>) listener;
         }
         var depth = calcTypeDepth(typeOfEvent);
         var headForType = new RegisteredListener<E>(depth, Integer.MIN_VALUE);
         var sc = typeOfEvent.getSuperclass();
         if (Event.class.isAssignableFrom(sc)) {
             var parent = getListenerByType((Class<E>) sc);
-            var intermediate = new RegisteredListener<>((pipeline, event) -> {
-                postEventAtNode((RegisteredListener<Event<?>>) parent, event, false, null);
-            }, depth, Integer.MAX_VALUE);
+            var intermediate = new RegisteredListener<>(depth, Integer.MAX_VALUE);
             headForType.insertSorted((RegisteredListener<E>) intermediate);
-            //intermediate.next = (RegisteredListener<Event<?>>) parent; // a trick.
+            intermediate.next = (RegisteredListener<Event<?>>) parent; // a trick.
         }
         typedListeners.put(typeOfEvent, headForType);
         return headForType;
