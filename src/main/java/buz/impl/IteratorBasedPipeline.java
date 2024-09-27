@@ -17,7 +17,6 @@ public class IteratorBasedPipeline<E extends Event<?>> implements EventPipeline<
     protected final ForkableIterator<EventListener<E>> iterator;
     protected final ResultListener<E> future;
     protected final EventExceptionHandler<E> exceptionHandler;
-    protected boolean cancelled;
     protected Exception lastException;
 
     @Override
@@ -27,7 +26,7 @@ public class IteratorBasedPipeline<E extends Event<?>> implements EventPipeline<
 
     @Override
     public void cancel() {
-        cancelled = true;
+        throw new EventCancelException();
     }
 
     @Override
@@ -37,10 +36,16 @@ public class IteratorBasedPipeline<E extends Event<?>> implements EventPipeline<
 
     @Override
     public void launch(E deliveringEvent) {
+        boolean cancelled = false;
+        // this boosts performance in openjdk, about 160000->200000op/s but slows down in graalvm, 733000 -> 700000
+        final var iterator = this.iterator;
         try {
-            while (iterator.hasNext() && !cancelled) {
+            while (iterator.hasNext()) {
                 invoke(iterator, deliveringEvent);
             }
+        } catch (EventCancelException ignored) {
+            // just continue.
+            cancelled = true;
         } catch (Exception e) {
             e.printStackTrace();  //todo loggers
             lastException = e;
@@ -54,7 +59,13 @@ public class IteratorBasedPipeline<E extends Event<?>> implements EventPipeline<
     }
 
     private void invoke(ForkableIterator<EventListener<E>> iterator, E deliveringEvent) {
-        // todo performance degraded when calling to superclass listeners!
         iterator.next().onEvent(this, deliveringEvent);
+    }
+
+    private static class EventCancelException extends RuntimeException {
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return this;
+        }
     }
 }
