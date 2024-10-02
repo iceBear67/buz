@@ -1,8 +1,7 @@
-package buz.impl;
+package buz.impl.util;
 
 import buz.api.event.Event;
 import buz.api.event.EventListener;
-import buz.impl.util.ForkableIterator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
-public class RegisteredListener<E extends Event<?>> implements Comparable<RegisteredListener<E>>, Iterable<EventListener<E>> {
+public class RegisteredListener<E extends Event<?,?>> implements Comparable<RegisteredListener<E>>, Iterable<EventListener<E>> {
     private static final EventListener<?> NO_OP_LISTENER = (p, e) -> {
     };
     @Getter
@@ -69,7 +68,7 @@ public class RegisteredListener<E extends Event<?>> implements Comparable<Regist
     }
 
     @AllArgsConstructor
-    public static class ListenerIterator<E extends Event<?>> implements ForkableIterator<EventListener<E>> {
+    public static class ListenerIterator<E extends Event<?,?>> implements ForkableIterator<EventListener<E>> {
         protected RegisteredListener<E> current;
 
         @Override

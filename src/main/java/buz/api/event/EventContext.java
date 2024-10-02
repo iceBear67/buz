@@ -1,20 +1,28 @@
 package buz.api.event;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-public interface EventContext {
-    <T> Optional<T> get(String key);
+public interface EventContext extends Cloneable{
+    <T> Optional<T> get(ContextKey<T> key);
 
-    <T> void put(String key, T value);
+    default <T> T get(ContextKey<T> key, T defaultValue) {
+        return get(key).orElse(defaultValue);
+    }
 
-    void remove(String key);
+    @Nullable
+    <T> T put(ContextKey<T> key, T value);
 
-    void contains(String key);
+    /**
+     * @return a mutable map view of this context.
+     */
+    @NotNull
+    Map<String, Object> asMap();
 
-    void putIfAbsent(String key, Object value);
-
-    void putIfPresent(String key, Object value);
-
-    void computeIfAbsent(String key, Function<String, Object> get);
+    record ContextKey<T>(String identifier, Class<T> typeOfValue) {
+    }
 }

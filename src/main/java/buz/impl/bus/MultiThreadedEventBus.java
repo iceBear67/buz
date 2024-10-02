@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
-public class MultiThreadedEventBus<E extends Event<?>> implements EventBus<E> {
+public class MultiThreadedEventBus<E extends Event<?,?>> implements EventBus<E> {
     private final Map<ScheduleType, EventBus<?>> busMap = new EnumMap<>(ScheduleType.class);
     private final Executor mainExecutor;
     private final Executor asyncExecutor;

@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
  *
  * @param <E> type of event
  */
-public interface EventExceptionHandler<E extends Event<?>> {
+public interface EventExceptionHandler<E extends Event<?,?>> {
     /**
      *
      * @param t

@@ -1,6 +1,5 @@
 package buz.impl.bus;
 
-import buz.api.EventPipeline;
 import buz.api.event.EventExceptionHandler;
 import buz.api.event.EventListener;
 import buz.api.ScheduleType;
@@ -8,7 +7,7 @@ import buz.api.event.Event;
 import buz.api.EventBus;
 import buz.api.event.ResultListener;
 import buz.impl.IteratorBasedPipeline;
-import buz.impl.RegisteredListener;
+import buz.impl.util.RegisteredListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,7 @@ import java.util.Objects;
  *
  * @param <E> type of event
  */
-public class HierarchyTypedEventBus<E extends Event<?>> implements EventBus<E> { //todo fix type
+public class HierarchyTypedEventBus<E extends Event<?,?>> implements EventBus<E> { //todo fix type
     private static final EventExceptionHandler<?> ALWAYS_FALSE = (a, b) -> false;
     private static final EventExceptionHandler<?> ALWAYS_TRUE = (a, b) -> true;
     private final Map<Class<?>, RegisteredListener<?>> typedListeners = new HashMap<>();
@@ -33,7 +32,7 @@ public class HierarchyTypedEventBus<E extends Event<?>> implements EventBus<E> {
     }
 
     @SuppressWarnings("unchecked")
-    protected <E extends Event<?>> RegisteredListener<E> getListenerByType(Class<E> typeOfEvent) {
+    protected <E extends Event<?,?>> RegisteredListener<E> getListenerByType(Class<E> typeOfEvent) {
         var listener = typedListeners.get(typeOfEvent);
         if (listener != null) {
             return (RegisteredListener<E>) listener;
@@ -45,7 +44,7 @@ public class HierarchyTypedEventBus<E extends Event<?>> implements EventBus<E> {
             var parent = getListenerByType((Class<E>) sc);
             var intermediate = new RegisteredListener<>(depth, Integer.MAX_VALUE);
             headForType.insertSorted((RegisteredListener<E>) intermediate);
-            intermediate.next = (RegisteredListener<Event<?>>) parent; // a trick.
+            intermediate.next = (RegisteredListener<Event<?,?>>) parent; // a trick.
         }
         typedListeners.put(typeOfEvent, headForType);
         return headForType;
@@ -61,7 +60,7 @@ public class HierarchyTypedEventBus<E extends Event<?>> implements EventBus<E> {
         return i;
     }
 
-    private <E extends Event<?>> void postEventAtNode(RegisteredListener<E> headNode, E event, boolean ignoreException, ResultListener<E> callback) {
+    private <E extends Event<?,?>> void postEventAtNode(RegisteredListener<E> headNode, E event, boolean ignoreException, ResultListener<E> callback) {
         EventExceptionHandler<E> exceptionHandler = (EventExceptionHandler<E>) (ignoreException ? ALWAYS_TRUE : ALWAYS_FALSE);
         var pipeline = new IteratorBasedPipeline<>(headNode.iterator(), callback, exceptionHandler);
         pipeline.launch(event);

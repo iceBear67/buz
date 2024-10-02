@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public interface EventBus<E extends Event<?>> {
+public interface EventBus<E extends Event<?,?>> {
     /**
      * Post an event.
      *

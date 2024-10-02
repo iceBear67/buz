@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-public class IteratorBasedPipeline<E extends Event<?>> implements EventPipeline<E> {
+public class IteratorBasedPipeline<E extends Event<?,?>> implements EventPipeline<E> {
     public static final EventExceptionHandler<?> NO_OP_EXCEPTION_HANDLER = (p, e) -> false;
     protected final ForkableIterator<EventListener<E>> iterator;
     protected final ResultListener<E> future;
