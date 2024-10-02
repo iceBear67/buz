@@ -2,10 +2,11 @@ plugins {
     id 'java'
     id "me.champeau.jmh" version "0.7.2"
     id("io.freefair.lombok") version "8.10"
+    id 'maven-publish'
 }
 
-group = 'ing.0w0.buz'
-version = '1.0-SNAPSHOT'
+group = 'io.ib67'
+version = '0.1.0'
 
 jmh {
     warmupIterations = 2
@@ -20,8 +21,13 @@ jmh {
         iterations = 3
     }
 }
+
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = targetCompatibility = 21
 }
 
 dependencies {
@@ -29,7 +35,17 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.awaitility:awaitility:4.2.2'
 }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = 'buz'
+            version = version
 
+            from components.java
+        }
+    }
+}
 test {
     useJUnitPlatform()
 }

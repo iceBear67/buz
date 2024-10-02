@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public abstract class Event<S extends EventSource> {
-    protected final EventContext context;
+public abstract class Event<S extends EventSource, C extends EventContext> {
+    protected final C context;
     protected final S source;
 }
