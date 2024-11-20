@@ -16,11 +16,9 @@ import java.util.function.Consumer;
 public class MultiThreadedEventBus<E extends Event<?,?>> implements EventBus<E> {
     private final Map<ScheduleType, EventBus<?>> busMap = new EnumMap<>(ScheduleType.class);
     private final Executor mainExecutor;
-    private final Executor asyncExecutor;
 
-    public MultiThreadedEventBus(Executor mainExecutor, Executor asyncExecutor) {
+    public MultiThreadedEventBus(Executor mainExecutor) {
         this.mainExecutor = Objects.requireNonNull(mainExecutor);
-        this.asyncExecutor = Objects.requireNonNull(asyncExecutor);
         for (ScheduleType type : ScheduleType.values()) {
             busMap.put(type, new HierarchyTypedEventBus<>());
         }
@@ -31,9 +29,6 @@ public class MultiThreadedEventBus<E extends Event<?,?>> implements EventBus<E> 
         ((EventBus<A>) busMap.get(ScheduleType.CURRENT)).postEvent(event, ignoreException, callback);
         mainExecutor.execute(() -> {
             ((EventBus<A>) busMap.get(ScheduleType.MAIN)).postEvent(event, ignoreException, callback);
-            asyncExecutor.execute(() -> {
-                ((EventBus<A>) busMap.get(ScheduleType.ASYNC)).postEvent(event, ignoreException, callback);
-            });
         });
     }
 

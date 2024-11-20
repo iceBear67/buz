@@ -23,20 +23,14 @@ public class TestMultiThreadedEventBus {
                     var thrd = new Thread(r);
                     thrd.setName("main");
                     return thrd;
-                }),
-                Executors.newVirtualThreadPerTaskExecutor()
+                })
         );
     }
 
     @Test
     public void testScheduler() {
-        AtomicBoolean called_async = new AtomicBoolean(false);
         AtomicBoolean called_main = new AtomicBoolean(false);
         AtomicBoolean called_current = new AtomicBoolean(false);
-        eventBus.registerListener(0, ScheduleType.ASYNC, TestEventA.class, (p, e) -> {
-            if (called_async.get()) throw new IllegalStateException("called_async called twice");
-            called_async.set(Thread.currentThread().isVirtual());
-        });
         var currentThrd = Thread.currentThread();
         eventBus.registerListener(0, ScheduleType.CURRENT, TestEventA.class, (p, e) -> {
             if (called_current.get()) throw new IllegalStateException("called_current called twice");
@@ -49,17 +43,12 @@ public class TestMultiThreadedEventBus {
         eventBus.postEvent(new TestEventA(null,null));
         Awaitility.await("test scheduling CURRENT").atMost(Duration.ofSeconds(1)).untilTrue(called_current);
         Awaitility.await("test scheduling MAIN").atMost(Duration.ofSeconds(1)).untilTrue(called_main);
-        Awaitility.await("test scheduling ASYNC").atMost(Duration.ofSeconds(1)).untilTrue(called_async);
     }
 
     @Test
     public void testOrder(){
         AtomicLong callAtCurrent = new AtomicLong();
         AtomicLong callAtMain = new AtomicLong();
-        AtomicLong callAtAsync = new AtomicLong();
-        eventBus.registerListener(0, ScheduleType.ASYNC, TestEventA.class, (p, e) -> {
-            callAtAsync.set(System.nanoTime());
-        });
         var currentThrd = Thread.currentThread();
         eventBus.registerListener(0, ScheduleType.CURRENT, TestEventA.class, (p, e) -> {
             callAtCurrent.set(System.nanoTime());
@@ -69,6 +58,5 @@ public class TestMultiThreadedEventBus {
         });
         eventBus.postEvent(new TestEventA(null,null));
         Awaitility.await("test order CURRENT > MAIN").atMost(Duration.ofSeconds(1)).until(() -> callAtCurrent.get() < callAtMain.get());
-        Awaitility.await("test scheduling MAIN > ASYNC").atMost(Duration.ofSeconds(1)).until(()-> callAtMain.get() < callAtAsync.get());
     }
 }

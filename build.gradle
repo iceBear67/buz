@@ -8,14 +8,21 @@ plugins {
 group = 'io.ib67'
 version = '0.1.1'
 
+/**
+ * -XX:+UnlockDiagnosticVMOptions
+ -Xlog:class+load=info
+ -XX:+LogCompilation
+ */
 jmh {
     warmupIterations = 2
     iterations = 2
     fork = 1
     threads = 1
+    jvm = "/home/icybear/fastdebug/jdk/bin/java"
     if (System.getenv("CI") == null) {
-        profilers = ['jfr:dir=profile-results']
-        //profilers = ['async:libPath=/opt/async-profiler/lib/libasyncProfiler.so;dir=profile-results']
+//        profilers = ['jfr:dir=profile-results']
+        jvmArgsPrepend = ["-fastdebug"]
+        jvmArgsAppend = ["-XX:+UnlockDiagnosticVMOptions", "-XX:LogFile=jitlog.log", "-XX:+PrintAssembly", "-XX:+DebugNonSafepoints", "-Xlog:class+load=info", "-XX:+LogCompilation"]
     } else {
         fork = 2
         iterations = 3
@@ -28,6 +35,7 @@ repositories {
 
 java {
     sourceCompatibility = targetCompatibility = 21
+    withSourcesJar()
 }
 
 dependencies {

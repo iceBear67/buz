@@ -44,7 +44,7 @@ public interface EventBus<E extends Event<?,?>> {
      * @param listener listener
      */
     default <A extends E> void registerListener(Class<A> typeOfE, EventListener<A> listener) {
-        registerListener(EventPriorities.NORMAL, ScheduleType.ASYNC, typeOfE, listener);
+        registerListener(EventPriorities.NORMAL, ScheduleType.MAIN, typeOfE, listener);
     }
 
 }

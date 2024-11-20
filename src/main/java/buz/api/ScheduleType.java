@@ -14,13 +14,5 @@ public enum ScheduleType {
      * middlewares (listeners with priority) and listeners that cares about event order since events are
      * posted by time order.
      */
-    MAIN,
-    /**
-     * {@link buz.api.event.EventListener}s will be fired at an unspecified thread, like {@link Thread#ofVirtual()}.
-     * By default, events are passed from its listener to super class listener and vice versa, and you may rely on its
-     * order. However, in this case, you should use MAIN instead.
-     * <p>
-     * This is the default ScheduleType when using {@link EventBus#registerListener(Class, EventListener)}.
-     */
-    ASYNC
+    MAIN
 }
