@@ -43,6 +43,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.awaitility:awaitility:4.2.2'
     compileOnly 'org.jetbrains:annotations:25.0.0'
+    implementation 'org.ow2.asm:asm-tree:9.7.1'
 }
 publishing {
     publications {
